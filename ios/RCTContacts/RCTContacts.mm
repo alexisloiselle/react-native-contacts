@@ -1665,8 +1665,10 @@ RCT_EXPORT_METHOD(removeContactsFromGroup:(NSString *)groupId
     } else if (authStatus == CNAuthorizationStatusAuthorized) {
         resolve(@"authorized");
     } else if (@available(iOS 18, *)) {
-        if (authStatus == CNAuthorizationStatusRestricted) {
+        if (authStatus == CNAuthorizationStatusLimited) {
             resolve(@"limited");
+        } else {
+            resolve(@"undefined");
         }
     } else {
         resolve(@"undefined");
