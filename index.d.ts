@@ -23,6 +23,9 @@ export function getContactsByPhoneNumber(
 export function getContactsByEmailAddress(
   emailAddress: string
 ): Promise<Contact[]>;
+export function pickContacts(
+  options?: ContactPickerOptions
+): Promise<PickedContact[]>;
 export function checkPermission(): Promise<
   "authorized" | "denied" | "undefined" | "limited"
 >;
@@ -56,6 +59,21 @@ export interface Group {
   identifier: string;
   name: string;
 }
+
+export type ContactPickerField = "emailAddresses" | "phoneNumbers";
+
+export interface ContactPickerOptions {
+  fields?: ContactPickerField[];
+  selectionLimit?: number;
+}
+
+export interface PickedContact {
+  identifier: string;
+  displayName: string;
+  emailAddresses: EmailAddress[];
+  phoneNumbers: PhoneNumber[];
+}
+
 export interface EmailAddress {
   label: string;
   email: string;

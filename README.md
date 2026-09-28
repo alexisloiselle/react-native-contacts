@@ -15,6 +15,21 @@ Contacts.getAll().then(contacts => {
 ```
 See the full [API](#api) for more methods.
 
+### Android 17 contact picker
+
+`pickContacts` opens Android 17's system contact picker and does not require `READ_CONTACTS`.
+It returns only the phone numbers and email addresses the user selects.
+
+```js
+const contacts = await Contacts.pickContacts({
+  fields: ['phoneNumbers'],
+  selectionLimit: 20,
+});
+```
+
+The picker is available on Android 17 (API 37) and newer. It rejects with
+`E_CONTACT_PICKER_UNAVAILABLE` on older Android versions and iOS.
+
 ### Android permissions
 On android you must request permissions beforehand
 ```js
@@ -190,6 +205,7 @@ If you'd like to read/write the contact's notes, call the `iosEnableNotesUsage(t
  * `getContactsMatchingString(string)`: Promise<Contact[]> - where string is any string to match a name (first, middle, family) to
  * `getContactsByPhoneNumber(string)`: Promise<Contact[]> - where string is a phone number to match to.
  * `getContactsByEmailAddress(string)`: Promise<Contact[]> - where string is an email address to match to.
+ * `pickContacts(options?)`: Promise<PickedContact[]> - opens the permissionless Android 17 system picker. `fields` accepts `phoneNumbers` and `emailAddresses`; `selectionLimit` accepts 1 through 100.
  * `checkPermission()`: Promise<string> - checks permission to access Contacts _ios only_
  * `requestPermission()`: Promise<string> - request permission to access Contacts _ios only_
  * `writePhotoToPath()` - writes the contact photo to a given path _android only_
