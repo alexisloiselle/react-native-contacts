@@ -37,19 +37,19 @@ export interface UrlAddress {
   label: string;
 }
 
-export type ContactPickerField = "emailAddresses" | "phoneNumbers";
+export type ContactPickerField = "name" | "emailAddresses" | "phoneNumbers";
 
 export interface ContactPickerOptions {
   fields?: ContactPickerField[];
   selectionLimit?: number;
 }
 
-export interface PickedContact {
+export type PickedContact = Pick<
+  Contact,
+  "displayName" | "givenName" | "middleName" | "familyName" | "emailAddresses" | "phoneNumbers"
+> & {
   identifier: string;
-  displayName: string;
-  emailAddresses: EmailAddress[];
-  phoneNumbers: PhoneNumber[];
-}
+};
 
 export interface Contact {
   recordID: string;

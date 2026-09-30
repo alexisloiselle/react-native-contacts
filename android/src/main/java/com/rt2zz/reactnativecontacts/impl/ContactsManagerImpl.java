@@ -219,12 +219,15 @@ public class ContactsManagerImpl {
                 ? options.getArray("fields")
                 : null;
         if (fields == null || fields.size() == 0) {
+            requestedDataFields.add(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);
             requestedDataFields.add(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
             requestedDataFields.add(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
         } else {
             for (int index = 0; index < fields.size(); index++) {
                 String field = fields.getString(index);
-                if ("phoneNumbers".equals(field)) {
+                if ("name".equals(field)) {
+                    requestedDataFields.add(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);
+                } else if ("phoneNumbers".equals(field)) {
                     requestedDataFields.add(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
                 } else if ("emailAddresses".equals(field)) {
                     requestedDataFields.add(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);
@@ -1368,7 +1371,8 @@ public class ContactsManagerImpl {
                 ContactsContract.Data.MIMETYPE,
                 ContactsContract.Data.DATA1,
                 ContactsContract.Data.DATA2,
-                ContactsContract.Data.DATA3
+                ContactsContract.Data.DATA3,
+                ContactsContract.Data.DATA5
         };
         Map<String, PickedContactResult> contacts = new LinkedHashMap<>();
         ContentResolver resolver = getReactApplicationContext().getContentResolver();
@@ -1384,6 +1388,7 @@ public class ContactsManagerImpl {
             int valueIndex = cursor.getColumnIndex(ContactsContract.Data.DATA1);
             int typeIndex = cursor.getColumnIndex(ContactsContract.Data.DATA2);
             int customLabelIndex = cursor.getColumnIndex(ContactsContract.Data.DATA3);
+            int middleNameIndex = cursor.getColumnIndex(ContactsContract.Data.DATA5);
 
             while (cursor.moveToNext()) {
                 String lookupKey = getString(cursor, lookupKeyIndex);
@@ -1398,6 +1403,12 @@ public class ContactsManagerImpl {
                 }
 
                 String mimeType = getString(cursor, mimeTypeIndex);
+                if (ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE.equals(mimeType)) {
+                    contact.givenName = getString(cursor, typeIndex);
+                    contact.familyName = getString(cursor, customLabelIndex);
+                    contact.middleName = getString(cursor, middleNameIndex);
+                    continue;
+                }
                 String value = getString(cursor, valueIndex);
                 if (value == null || value.isEmpty()) {
                     continue;
@@ -1418,6 +1429,9 @@ public class ContactsManagerImpl {
             WritableMap value = Arguments.createMap();
             value.putString("identifier", contact.identifier);
             value.putString("displayName", contact.displayName);
+            value.putString("givenName", contact.givenName == null ? "" : contact.givenName);
+            value.putString("middleName", contact.middleName == null ? "" : contact.middleName);
+            value.putString("familyName", contact.familyName == null ? "" : contact.familyName);
             value.putArray("phoneNumbers", contact.phoneNumbers);
             value.putArray("emailAddresses", contact.emailAddresses);
             result.pushMap(value);
@@ -1450,6 +1464,9 @@ public class ContactsManagerImpl {
     private static class PickedContactResult {
         final String identifier;
         final String displayName;
+        String givenName;
+        String middleName;
+        String familyName;
         final WritableArray phoneNumbers = Arguments.createArray();
         final WritableArray emailAddresses = Arguments.createArray();
 
